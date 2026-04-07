@@ -1,0 +1,883 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🎂 생일 축하해!! 🎂</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Jua&family=Black+Han+Sans&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Jua", sans-serif;
+        background: #0a0a2e;
+        overflow: hidden;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: default;
+      }
+
+      /* ===== FIREWORKS CANVAS ===== */
+      #fireworks-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      /* ===== CONFETTI OVERLAY ===== */
+      .confetti-piece {
+        position: fixed;
+        z-index: 999;
+        pointer-events: none;
+        animation: confetti-fall linear forwards;
+      }
+      @keyframes confetti-fall {
+        0% {
+          opacity: 1;
+          transform: translateY(0) rotate(0deg);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(100vh) rotate(720deg);
+        }
+      }
+
+      /* ===== STAGES ===== */
+      .stage {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        z-index: 10;
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+      .stage.active {
+        display: flex;
+      }
+
+      /* ===== STAGE 1: CAKE ===== */
+      #stage-cake {
+        background: radial-gradient(
+          ellipse at center,
+          #1a1a4e 0%,
+          #0a0a2e 100%
+        );
+      }
+
+      .cake-title {
+        font-family: "Black Han Sans", sans-serif;
+        font-size: 4rem;
+        color: #fff;
+        text-shadow:
+          0 0 20px #ff6b9d,
+          0 0 40px #c44569,
+          0 0 60px #ff6b9d;
+        animation: title-glow 1.5s ease-in-out infinite alternate;
+        margin-bottom: 30px;
+      }
+      @keyframes title-glow {
+        from {
+          text-shadow:
+            0 0 20px #ff6b9d,
+            0 0 40px #c44569;
+        }
+        to {
+          text-shadow:
+            0 0 30px #ffd32a,
+            0 0 60px #ff6b9d,
+            0 0 90px #ffd32a;
+        }
+      }
+
+      .cake-container {
+        cursor: pointer;
+        transition: transform 0.3s;
+        position: relative;
+        animation: cake-bounce 2s ease-in-out infinite;
+      }
+      .cake-container:hover {
+        transform: scale(1.05);
+      }
+      .cake-container:active {
+        transform: scale(0.85) rotateZ(-5deg);
+      }
+
+      @keyframes cake-bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-15px);
+        }
+      }
+
+      .cake-emoji {
+        font-size: 12rem;
+        filter: drop-shadow(0 0 30px rgba(255, 107, 157, 0.6));
+      }
+
+      .cake-hint {
+        font-size: 1.6rem;
+        color: #ffd32a;
+        margin-top: 20px;
+        animation: hint-blink 1s ease-in-out infinite;
+      }
+      @keyframes hint-blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+
+      /* ===== STAGE 2: GIFT SELECT ===== */
+      #stage-gift {
+        background: radial-gradient(
+          ellipse at center,
+          #2d1b69 0%,
+          #0a0a2e 100%
+        );
+      }
+
+      .gift-title {
+        font-family: "Black Han Sans", sans-serif;
+        font-size: 3rem;
+        color: #ffd32a;
+        text-shadow: 0 0 15px rgba(255, 211, 42, 0.5);
+        margin-bottom: 50px;
+        animation: heartbeat 1.2s ease-in-out infinite;
+      }
+      @keyframes heartbeat {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        15% {
+          transform: scale(1.15);
+        }
+        30% {
+          transform: scale(1);
+        }
+        45% {
+          transform: scale(1.1);
+        }
+      }
+
+      .gift-boxes {
+        display: flex;
+        gap: 60px;
+        position: relative;
+        width: 700px;
+        height: 250px;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .gift-box {
+        font-size: 7rem;
+        cursor: pointer;
+        transition: transform 0.15s ease-out;
+        position: absolute;
+        filter: drop-shadow(0 0 20px rgba(255, 107, 157, 0.4));
+        user-select: none;
+        animation: gift-wobble 1.5s ease-in-out infinite;
+      }
+      .gift-box:nth-child(1) {
+        left: 50px;
+      }
+      .gift-box:nth-child(2) {
+        left: 280px;
+      }
+      .gift-box:nth-child(3) {
+        left: 510px;
+      }
+
+      @keyframes gift-wobble {
+        0%,
+        100% {
+          transform: rotate(-3deg);
+        }
+        50% {
+          transform: rotate(3deg);
+        }
+      }
+
+      .dodge-text {
+        font-size: 2.5rem;
+        color: #ff6b9d;
+        margin-top: 30px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        text-shadow: 0 0 15px rgba(255, 107, 157, 0.5);
+      }
+      .dodge-text.show {
+        opacity: 1;
+        animation: shake 0.4s ease-in-out;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-10px);
+        }
+        75% {
+          transform: translateX(10px);
+        }
+      }
+
+      /* ===== STAGE 3: DOOSAN VICTORY ===== */
+      #stage-victory {
+        background: radial-gradient(
+          ellipse at center,
+          #1a3d00 0%,
+          #0a1a00 100%
+        );
+      }
+
+      .victory-title {
+        font-family: "Black Han Sans", sans-serif;
+        font-size: 4.5rem;
+        color: #ffd32a;
+        text-shadow:
+          0 0 30px #ffd32a,
+          0 0 60px #ff6b9d;
+        animation: victory-flash 0.5s ease-in-out infinite alternate;
+        margin-bottom: 30px;
+      }
+      @keyframes victory-flash {
+        from {
+          transform: scale(1);
+          color: #ffd32a;
+        }
+        to {
+          transform: scale(1.08);
+          color: #ff6b9d;
+        }
+      }
+
+      .victory-image {
+        width: 350px;
+        max-width: 80vw;
+        border-radius: 20px;
+        border: 5px solid #ffd32a;
+        box-shadow: 0 0 40px rgba(255, 211, 42, 0.5);
+        animation: img-pop 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+      }
+      @keyframes img-pop {
+        0% {
+          transform: scale(0) rotate(-10deg);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1) rotate(0);
+          opacity: 1;
+        }
+      }
+
+      .fanfare-emoji {
+        font-size: 4rem;
+        position: fixed;
+        animation: fanfare-float 2s ease-out forwards;
+        pointer-events: none;
+        z-index: 100;
+      }
+      @keyframes fanfare-float {
+        0% {
+          transform: scale(0) translateY(0);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.5) translateY(-100px);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(1) translateY(-200px);
+          opacity: 0;
+        }
+      }
+
+      /* ===== STAGE 4: LETTER ===== */
+      #stage-letter {
+        background: radial-gradient(
+          ellipse at center,
+          #2e1437 0%,
+          #0a0a2e 100%
+        );
+      }
+
+      .letter-question {
+        font-family: "Black Han Sans", sans-serif;
+        font-size: 2.8rem;
+        color: #fff;
+        text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        margin-bottom: 40px;
+        animation: fadeInUp 0.8s ease;
+      }
+
+      .envelope {
+        font-size: 10rem;
+        cursor: pointer;
+        transition: transform 0.3s;
+        filter: drop-shadow(0 0 25px rgba(255, 211, 42, 0.5));
+        animation: envelope-hover 2s ease-in-out infinite;
+      }
+      .envelope:hover {
+        transform: scale(1.15) rotate(5deg);
+      }
+
+      @keyframes envelope-hover {
+        0%,
+        100% {
+          transform: translateY(0) rotate(0);
+        }
+        50% {
+          transform: translateY(-10px) rotate(-3deg);
+        }
+      }
+
+      .letter-hint {
+        font-size: 1.4rem;
+        color: #ffd32a;
+        margin-top: 20px;
+        animation: hint-blink 1s ease-in-out infinite;
+      }
+
+      /* ===== STAGE 5: LETTER OPENED ===== */
+      #stage-letter-open {
+        background: radial-gradient(
+          ellipse at center,
+          #1a1a4e 0%,
+          #0a0a2e 100%
+        );
+      }
+
+      .letter-image {
+        width: 350px;
+        max-width: 80vw;
+        border-radius: 20px;
+        border: 5px solid #ff6b9d;
+        box-shadow: 0 0 40px rgba(255, 107, 157, 0.5);
+        animation: img-pop 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        margin-bottom: 30px;
+      }
+
+      .letter-message {
+        font-size: 2.2rem;
+        color: #fff;
+        line-height: 2;
+        animation: fadeInUp 1s ease;
+      }
+      .letter-message .prank {
+        color: #ff6b9d;
+        font-size: 2.5rem;
+      }
+      .letter-message .congrats {
+        color: #ffd32a;
+        font-size: 3rem;
+        text-shadow: 0 0 15px rgba(255, 211, 42, 0.5);
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ===== PLAY BUTTON OVERLAY ===== */
+      #play-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+      #play-overlay.hidden {
+        display: none;
+      }
+
+      .play-btn {
+        font-size: 5rem;
+        background: linear-gradient(135deg, #ff6b9d, #c44569);
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        width: 150px;
+        height: 150px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 40px rgba(255, 107, 157, 0.6);
+        animation: pulse 1.5s ease-in-out infinite;
+        transition: transform 0.2s;
+      }
+      .play-btn:hover {
+        transform: scale(1.1);
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 40px rgba(255, 107, 157, 0.6);
+        }
+        50% {
+          box-shadow: 0 0 80px rgba(255, 107, 157, 0.9);
+        }
+      }
+
+      .play-text {
+        font-size: 1.8rem;
+        color: #fff;
+        margin-top: 25px;
+        animation: hint-blink 1s ease-in-out infinite;
+      }
+
+      /* ===== SCREEN FLASH ===== */
+      .screen-flash {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        z-index: 998;
+        pointer-events: none;
+        animation: flash-anim 0.4s ease-out forwards;
+      }
+      @keyframes flash-anim {
+        0% {
+          opacity: 0.8;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Play Overlay (required for audio autoplay) -->
+    <div id="play-overlay" onclick="startParty()">
+      <button class="play-btn">▶</button>
+      <p class="play-text">🎂 터치해서 파티 시작! 🎂</p>
+    </div>
+
+    <!-- Fireworks Canvas -->
+    <canvas id="fireworks-canvas"></canvas>
+
+    <!-- Audio -->
+    <audio id="bgm" loop preload="auto">
+      <source src="우승희망회로 ON.mp3" type="audio/mpeg" />
+    </audio>
+
+    <!-- STAGE 1: Cake -->
+    <div id="stage-cake" class="stage active">
+      <h1 class="cake-title">🎉 생일 축하해!! 🎉</h1>
+      <div class="cake-container" onclick="onCakeClick()">
+        <div class="cake-emoji">🎂</div>
+      </div>
+      <p class="cake-hint">👆 케이크를 눌러보세요! 👆</p>
+    </div>
+
+    <!-- STAGE 2: Gift Boxes -->
+    <div id="stage-gift" class="stage">
+      <h1 class="gift-title">💝 두근두근 선물을 골라주세요 💝</h1>
+      <div class="gift-boxes" id="gift-area">
+        <div
+          class="gift-box"
+          onmouseenter="dodgeGift(this)"
+          onclick="selectGift(this)"
+        >
+          🎁
+        </div>
+        <div
+          class="gift-box"
+          onmouseenter="dodgeGift(this)"
+          onclick="selectGift(this)"
+        >
+          🎁
+        </div>
+        <div
+          class="gift-box"
+          onmouseenter="dodgeGift(this)"
+          onclick="selectGift(this)"
+        >
+          🎁
+        </div>
+      </div>
+      <p class="dodge-text" id="dodge-text">약오르지 ㅋㅋㅋ 😝</p>
+    </div>
+
+    <!-- STAGE 3: Victory -->
+    <div id="stage-victory" class="stage">
+      <h1 class="victory-title">🏆 두산 베어스 우승!! 🏆</h1>
+      <img class="victory-image" src="듀.png" alt="두산 베어스" />
+    </div>
+
+    <!-- STAGE 4: Letter Envelope -->
+    <div id="stage-letter" class="stage">
+      <h1 class="letter-question">💌 편지가 궁금하신가여? 💌</h1>
+      <div class="envelope" onclick="openEnvelope()">✉️</div>
+      <p class="letter-hint">👆 편지봉투를 눌러보세여 👆</p>
+    </div>
+
+    <!-- STAGE 5: Letter Open -->
+    <div id="stage-letter-open" class="stage">
+      <img class="letter-image" src="듀2.jpg" alt="편지" />
+      <div class="letter-message">
+        <p class="prank">그런게 있겠냐? 🤣</p>
+        <p>는 장난이고</p>
+        <p class="congrats">🎉 축하해 ㅎㅎ 🎉</p>
+      </div>
+    </div>
+
+    <script>
+      // =============== FIREWORKS ENGINE ===============
+      const canvas = document.getElementById("fireworks-canvas");
+      const ctx = canvas.getContext("2d");
+      let fireworksActive = true;
+
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resizeCanvas();
+      window.addEventListener("resize", resizeCanvas);
+
+      class Particle {
+        constructor(x, y, color, velocity, life) {
+          this.x = x;
+          this.y = y;
+          this.color = color;
+          this.velocity = velocity;
+          this.alpha = 1;
+          this.life = life || 60;
+          this.decay = 1 / this.life;
+          this.gravity = 0.03;
+          this.size = Math.random() * 3 + 1;
+        }
+        update() {
+          this.velocity.x *= 0.98;
+          this.velocity.y *= 0.98;
+          this.velocity.y += this.gravity;
+          this.x += this.velocity.x;
+          this.y += this.velocity.y;
+          this.alpha -= this.decay;
+        }
+        draw() {
+          ctx.save();
+          ctx.globalAlpha = Math.max(this.alpha, 0);
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      let particles = [];
+      const fireworkColors = [
+        "#ff6b9d",
+        "#ffd32a",
+        "#c44569",
+        "#ff9ff3",
+        "#54a0ff",
+        "#5f27cd",
+        "#01a3a4",
+        "#f368e0",
+        "#ff6348",
+        "#7bed9f",
+        "#70a1ff",
+        "#ffa502",
+      ];
+
+      function createFirework() {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height * 0.6;
+        const color =
+          fireworkColors[Math.floor(Math.random() * fireworkColors.length)];
+        const particleCount = 80 + Math.random() * 60;
+
+        for (let i = 0; i < particleCount; i++) {
+          const angle = ((Math.PI * 2) / particleCount) * i;
+          const speed = Math.random() * 4 + 1;
+          particles.push(
+            new Particle(
+              x,
+              y,
+              color,
+              {
+                x: Math.cos(angle) * speed,
+                y: Math.sin(angle) * speed,
+              },
+              50 + Math.random() * 30,
+            ),
+          );
+        }
+      }
+
+      function animateFireworks() {
+        if (!fireworksActive) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          return;
+        }
+        ctx.fillStyle = "rgba(10, 10, 46, 0.15)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        particles = particles.filter((p) => p.alpha > 0);
+        particles.forEach((p) => {
+          p.update();
+          p.draw();
+        });
+
+        requestAnimationFrame(animateFireworks);
+      }
+
+      let fireworkInterval;
+      function startFireworks() {
+        fireworksActive = true;
+        animateFireworks();
+        createFirework();
+        fireworkInterval = setInterval(() => {
+          if (fireworksActive) {
+            createFirework();
+            if (Math.random() > 0.5) createFirework();
+          }
+        }, 600);
+      }
+
+      function stopFireworks() {
+        fireworksActive = false;
+        clearInterval(fireworkInterval);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+
+      // =============== CONFETTI ===============
+      function spawnConfetti(count = 80) {
+        const colors = [
+          "#ff6b9d",
+          "#ffd32a",
+          "#c44569",
+          "#ff9ff3",
+          "#54a0ff",
+          "#5f27cd",
+          "#7bed9f",
+          "#f368e0",
+          "#ff6348",
+        ];
+        for (let i = 0; i < count; i++) {
+          const el = document.createElement("div");
+          el.className = "confetti-piece";
+          el.style.left = Math.random() * 100 + "vw";
+          el.style.top = "-20px";
+          el.style.width = Math.random() * 12 + 6 + "px";
+          el.style.height = Math.random() * 12 + 6 + "px";
+          el.style.background =
+            colors[Math.floor(Math.random() * colors.length)];
+          el.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+          el.style.animationDuration = Math.random() * 2 + 2 + "s";
+          el.style.animationDelay = Math.random() * 1 + "s";
+          document.body.appendChild(el);
+          setTimeout(() => el.remove(), 5000);
+        }
+      }
+
+      // =============== FANFARE ===============
+      function spawnFanfare() {
+        const emojis = [
+          "🎺",
+          "🎉",
+          "🎊",
+          "⭐",
+          "🏆",
+          "🎵",
+          "🎶",
+          "✨",
+          "🥳",
+          "🎷",
+        ];
+        for (let i = 0; i < 20; i++) {
+          setTimeout(() => {
+            const el = document.createElement("div");
+            el.className = "fanfare-emoji";
+            el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            el.style.left = Math.random() * 90 + 5 + "vw";
+            el.style.top = Math.random() * 40 + 50 + "vh";
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 2500);
+          }, i * 150);
+        }
+      }
+
+      // =============== SCREEN FLASH ===============
+      function screenFlash() {
+        const flash = document.createElement("div");
+        flash.className = "screen-flash";
+        document.body.appendChild(flash);
+        setTimeout(() => flash.remove(), 500);
+      }
+
+      // =============== STAGE MANAGEMENT ===============
+      function showStage(id) {
+        document
+          .querySelectorAll(".stage")
+          .forEach((s) => s.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+      }
+
+      // =============== START PARTY ===============
+      function startParty() {
+        document.getElementById("play-overlay").classList.add("hidden");
+        const bgm = document.getElementById("bgm");
+        bgm.volume = 0.7;
+        bgm.play().catch(() => {});
+        startFireworks();
+        spawnConfetti(100);
+        setTimeout(() => spawnConfetti(60), 2000);
+      }
+
+      // =============== STAGE 1: CAKE CLICK ===============
+      function onCakeClick() {
+        const cake = document.querySelector(".cake-container");
+        cake.style.animation = "none";
+        cake.style.transform = "scale(0.7) rotate(-10deg)";
+        cake.style.transition =
+          "transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55)";
+
+        setTimeout(() => {
+          cake.style.transform = "scale(1.3) rotate(5deg)";
+        }, 400);
+
+        setTimeout(() => {
+          screenFlash();
+          stopFireworks();
+          showStage("stage-gift");
+          spawnConfetti(50);
+        }, 1000);
+      }
+
+      // =============== STAGE 2: GIFT DODGE ===============
+      let dodgeCount = 0;
+      const maxDodges = 3;
+      let canSelectGift = false;
+
+      function dodgeGift(box) {
+        if (canSelectGift) return;
+
+        dodgeCount++;
+        const dodgeText = document.getElementById("dodge-text");
+        const area = document.getElementById("gift-area");
+        const areaRect = area.getBoundingClientRect();
+
+        // Move ALL boxes to random positions
+        document.querySelectorAll(".gift-box").forEach((b) => {
+          const maxX = areaRect.width - 100;
+          const maxY = areaRect.height - 100;
+          const newX = Math.random() * maxX;
+          const newY = Math.random() * maxY;
+          b.style.left = newX + "px";
+          b.style.top = newY + "px";
+          b.style.transition = "left 0.2s ease-out, top 0.2s ease-out";
+        });
+
+        // Show taunt text
+        const taunts = [
+          "약오르지 ㅋㅋㅋ 😝",
+          "이쪽이다~ ㅋ 🤪",
+          "잡아봐라~ 😜",
+        ];
+        dodgeText.textContent =
+          taunts[Math.min(dodgeCount - 1, taunts.length - 1)];
+        dodgeText.classList.add("show");
+        setTimeout(() => dodgeText.classList.remove("show"), 800);
+
+        if (dodgeCount >= maxDodges) {
+          canSelectGift = true;
+          // Return boxes to normal positions and stop wobbling
+          setTimeout(() => {
+            const boxes = document.querySelectorAll(".gift-box");
+            boxes[0].style.left = "50px";
+            boxes[0].style.top = "75px";
+            boxes[1].style.left = "280px";
+            boxes[1].style.top = "75px";
+            boxes[2].style.left = "510px";
+            boxes[2].style.top = "75px";
+            boxes.forEach(
+              (b) => (b.style.animation = "pulse 0.6s ease-in-out infinite"),
+            );
+          }, 600);
+        }
+      }
+
+      function selectGift(box) {
+        if (!canSelectGift) return;
+
+        box.style.transform = "scale(1.5) rotate(15deg)";
+        box.style.transition = "transform 0.3s";
+        box.textContent = "🎊";
+
+        setTimeout(() => {
+          screenFlash();
+          showStage("stage-victory");
+          fireworksActive = true;
+          startFireworks();
+          spawnConfetti(120);
+          spawnFanfare();
+
+          // Auto transition to letter after 4 seconds
+          setTimeout(() => {
+            stopFireworks();
+            screenFlash();
+            showStage("stage-letter");
+          }, 4500);
+        }, 600);
+      }
+
+      // =============== STAGE 4: ENVELOPE ===============
+      function openEnvelope() {
+        const env = document.querySelector(".envelope");
+        env.style.transform = "scale(1.5) rotate(15deg)";
+        env.textContent = "💌";
+
+        setTimeout(() => {
+          screenFlash();
+          showStage("stage-letter-open");
+          spawnConfetti(100);
+          fireworksActive = true;
+          startFireworks();
+        }, 500);
+      }
+    </script>
+  </body>
+</html>
